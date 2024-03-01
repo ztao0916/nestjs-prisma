@@ -1,2 +1,2 @@
 # nestjs-prisma
-基于prisma的nestjs配置
+学习如何在nestjs中使用prisma
