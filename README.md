@@ -118,3 +118,41 @@ ts文件的执行需要使用`ts-node`
 
 主要是用来抽象出客户端API,负责实例化`prismaClient`并连接到数据库实例
 
+
+
+### 接口文档
+
+主要是使用`swagger`
+
+```typescript
+pnpm install --save @nestjs/swagger swagger-ui-express
+```
+
+更新`main.ts`
+
+```typescript
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('Median')
+    .setDescription('The Median API description')
+    .setVersion('0.1')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+### CRUD
+
+
+
