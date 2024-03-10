@@ -154,5 +154,106 @@ bootstrap();
 
 ### CRUD
 
+主要是熟悉`prisma`的语法 ,从官网以及掘金上看下,没有特别复杂
 
+
+
+### 管道
+
+这是之前一直忽略的点,一直不理解有啥用,现在明了主要是用来**校验参数和转换数据类型**
+
+还是很重要的,流程如图
+
+成功的请求:
+
+![](https://cdn.jsdelivr.net/gh/ztao0916/image@main/img/202403091214450.png)
+
+失败的请求:
+
+![](https://cdn.jsdelivr.net/gh/ztao0916/image@main/img/202403091215235.png)
+
+安装依赖包
+
+```
+pnpm install class-validator class-transformer
+```
+
+`class-validator` 包提供了用于验证输入数据的装饰器
+
+`class-transformer` 包提供了用于将输入数据转换为所需形式的装饰器
+
+
+
+然后在`main.ts`中全局引入管道校验,注意不是从以上的依赖包导入的,从`@nestjs/common`导入,新增内容如下
+
+```
+import { ValidationPipe } from '@nestjs/common';
+...
+app.useGlobalPipes(new ValidationPipe());
+```
+
+ok,下一步就可以验证了
+
+既然是验证参数,那么肯定是验证`dto`文件夹的内容
+
+校验`create-article.dto.ts`文件里的参数,更改后代码如下
+
+```typescript
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+export class CreateArticleDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
+  @ApiProperty()
+  title: string;
+
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  @MaxLength(300)
+  @ApiProperty({ required: false })
+  description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  body: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ required: false, default: false })
+  published?: boolean = false;
+}
+```
+
+以上是`nestjs-pipe`参数校验功能
+
+
+
+然后是需要执行 参数转换,在`articleController`中所有的文章`id`都应该传入`number`类型,需要做改动如下
+
+```typescript
+//main.ts新增如下
+app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+```
+
+然后更新`articleController`,如图
+
+![](https://cdn.jsdelivr.net/gh/ztao0916/image@main/img/202403102112257.png)
+
+![](https://cdn.jsdelivr.net/gh/ztao0916/image@main/img/202403102113041.png)
+
+上面几个需求的`id`都做了数据转换,最后验证的效果如图所示
+
+![](https://cdn.jsdelivr.net/gh/ztao0916/image@main/img/202403102115067.png)
+
+这样子的话就会很友好
 
